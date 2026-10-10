@@ -75,11 +75,9 @@
 
 @utility glow { box-shadow: var(--glow); }
 
-@layer components {
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 active:scale-[0.98]; }
-  .btn-primary { @apply btn bg-primary text-primary-foreground hover:brightness-110; }
-  .btn-ghost { @apply btn bg-secondary text-secondary-foreground hover:bg-accent; }
-  .btn-danger { @apply btn bg-destructive/15 text-destructive hover:bg-destructive/25; }
-  .field { @apply w-full rounded-lg border border-input bg-background/60 px-3 py-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30; }
-  .panel { @apply rounded-xl border border-border bg-card; }
-}
+@utility btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all disabled:opacity-50 active:scale-[0.98]; }
+@utility btn-primary { @apply btn bg-primary text-primary-foreground hover:brightness-110; }
+@utility btn-ghost { @apply btn bg-secondary text-secondary-foreground hover:bg-accent; }
+@utility btn-danger { @apply btn bg-destructive/15 text-destructive hover:bg-destructive/25; }
+@utility field { @apply w-full rounded-lg border border-input bg-background/60 px-3 py-2.5 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30; }
+@utility panel { @apply rounded-xl border border-border bg-card; }
