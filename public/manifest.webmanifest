@@ -1,0 +1,9 @@
+{
+  "name": "14x27 Vault",
+  "short_name": "14x27",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1712",
+  "theme_color": "#0f1712",
+  "icons": [{ "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }]
+}
