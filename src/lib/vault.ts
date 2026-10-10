@@ -79,7 +79,8 @@ export function generatePassword(len: number, opts: { upper: boolean; digits: bo
   const limit = Math.floor(0xffffffff / set.length) * set.length;
   while (out.length < len) {
     crypto.getRandomValues(buf);
-    if (buf[0] < limit) out.push(set[buf[0] % set.length]);
+    const n = buf[0]!;
+    if (n < limit) out.push(set.charAt(n % set.length));
   }
   return out.join("");
 }
@@ -94,7 +95,8 @@ export function strength(pw: string): { score: 0 | 1 | 2 | 3 | 4; label: string;
   let bits = pw.length * Math.log2(pool || 1);
   if (/(.)\1{2,}/.test(pw) || /^(password|1234|qwerty|admin)/i.test(pw)) bits *= 0.5;
   const score = (bits < 28 ? 0 : bits < 40 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4) as 0 | 1 | 2 | 3 | 4;
-  return { score, label: ["Very weak", "Weak", "Fair", "Strong", "Excellent"][score], bits: Math.round(bits) };
+  const labels = ["Very weak", "Weak", "Fair", "Strong", "Excellent"] as const;
+  return { score, label: labels[score], bits: Math.round(bits) };
 }
 
 export function audit(entries: Entry[]) {
