@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>a14x27s — Ad-free YouTube Music client for Android</title>
+<meta name="description" content="a14x27s is a native Android YouTube Music client with smart playlists, real-time synced lyrics, offline downloads and universal Last.fm scrobbling. Download the APK." />
+<meta name="theme-color" content="#F5D90A" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230A0A0A'/%3E%3Ctext x='50' y='68' font-size='56' font-family='Arial' font-weight='bold' text-anchor='middle' fill='%23F5D90A'%3Ea14%3C/text%3E%3C/svg%3E" />
+<style>
+  :root{
+    --cream:#FDF6E3; --paper:#FFFFFF; --ink:#0A0A0A;
+    --yellow:#F5D90A; --pink:#FF5470; --cyan:#00E5FF; --lime:#C6F100; --red:#FF0000;
+    --bw:3px; --sh:8px 8px 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--cream); color:var(--ink);
+    font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    font-size:17px; line-height:1.55; -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(var(--ink) 1px, transparent 1px);
+    background-size:24px 24px; background-position:-1px -1px;
+  }
+  ::selection{background:var(--ink);color:var(--yellow)}
+  a{color:inherit}
+  h1,h2,h3{font-weight:900;letter-spacing:-.02em;line-height:1.02;margin:0}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+  .neo{background:var(--paper);border:var(--bw) solid var(--ink);box-shadow:var(--sh)}
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;
+    background:var(--yellow);border:var(--bw) solid var(--ink);
+    padding:14px 22px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;
+    text-decoration:none;box-shadow:6px 6px 0 var(--ink);cursor:pointer;font-size:15px;
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:hover{transform:translate(-2px,-2px);box-shadow:9px 9px 0 var(--ink)}
+  .btn:active{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+  .btn--big{font-size:20px;padding:20px 34px}
+  .btn--pink{background:var(--pink);color:#fff}
+  .btn--ghost{background:var(--paper)}
+  .tag{display:inline-block;border:var(--bw) solid var(--ink);background:var(--cyan);
+    padding:4px 12px;font-weight:800;text-transform:uppercase;font-size:12px;letter-spacing:.08em;box-shadow:4px 4px 0 var(--ink)}
+
+  /* NAV */
+  header{padding:22px 0}
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .wordmark{display:flex;align-items:center;gap:12px;font-weight:900;font-size:24px;letter-spacing:-.03em;text-decoration:none}
+  .wordmark .dot{width:34px;height:34px;border:var(--bw) solid var(--ink);background:var(--yellow);
+    display:grid;place-items:center;box-shadow:4px 4px 0 var(--ink);font-size:16px;transform:rotate(-4deg)}
+  .nav .links{display:flex;gap:8px;align-items:center}
+  .nav .links a.txt{padding:8px 12px;text-decoration:none;font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.05em}
+  .nav .links a.txt:hover{background:var(--ink);color:var(--yellow)}
+  @media(max-width:720px){.nav .links a.txt{display:none}}
+
+  /* HERO */
+  .hero{padding:26px 0 10px}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:32px;align-items:center}
+  @media(max-width:860px){.hero-grid{grid-template-columns:1fr}}
+  .hero h1{font-size:clamp(44px,8vw,86px);text-transform:uppercase}
+  .hero h1 .hl{background:var(--yellow);border:var(--bw) solid var(--ink);padding:0 8px;box-shadow:6px 6px 0 var(--ink);display:inline-block;transform:rotate(-1.2deg)}
+  .hero p.lead{font-size:19px;max-width:52ch;margin:20px 0 24px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .meta{margin-top:14px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.05em;opacity:.85}
+  .hero-card{background:var(--ink);color:var(--cream);border:var(--bw) solid var(--ink);
+    box-shadow:10px 10px 0 var(--pink);padding:22px;transform:rotate(1.4deg)}
+  .hero-card .row{display:flex;justify-content:space-between;border-bottom:2px dashed rgba(253,246,227,.35);padding:10px 0;font-size:14px}
+  .hero-card .row:last-child{border-bottom:0}
+  .hero-card .row b{color:var(--yellow)}
+  .bars{display:flex;gap:6px;align-items:flex-end;height:56px;margin:16px 0 6px}
+  .bars i{flex:1;background:var(--cyan);border:2px solid var(--cream)}
+  .bars i:nth-child(2n){background:var(--yellow)}
+  .bars i:nth-child(3n){background:var(--pink)}
+
+  /* MARQUEE */
+  .marquee{margin:34px 0;border-top:var(--bw) solid var(--ink);border-bottom:var(--bw) solid var(--ink);
+    background:var(--lime);overflow:hidden;white-space:nowrap}
+  .marquee .track{display:inline-block;padding:12px 0;font-weight:900;text-transform:uppercase;letter-spacing:.06em;animation:slide 22s linear infinite}
+  .marquee .track span{padding:0 26px}
+  @keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* SECTIONS */
+  section{padding:56px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(30px,5vw,50px);text-transform:uppercase}
+  .sec-head .kicker{font-weight:800;text-transform:uppercase;letter-spacing:.14em;font-size:13px;background:var(--pink);color:#fff;border:var(--bw) solid var(--ink);padding:4px 10px;box-shadow:4px 4px 0 var(--ink)}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.grid{grid-template-columns:1fr}}
+  .card{padding:20px;transition:transform .08s ease, box-shadow .08s ease}
+  .card:hover{transform:translate(-3px,-3px);box-shadow:11px 11px 0 var(--ink)}
+  .card .ico{width:52px;height:52px;border:var(--bw) solid var(--ink);display:grid;place-items:center;margin-bottom:14px;box-shadow:4px 4px 0 var(--ink)}
+  .card .ico svg{width:26px;height:26px;stroke:var(--ink);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+  .card h3{font-size:19px;text-transform:uppercase;margin-bottom:6px}
+  .card p{margin:0;font-size:15px;opacity:.9}
+  .c1{background:var(--yellow)} .c2{background:var(--cyan)} .c3{background:var(--pink)} .c4{background:var(--lime)}
+
+  /* STEPS */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  @media(max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.steps{grid-template-columns:1fr}}
+  .step{padding:22px;position:relative}
+  .step .num{font-size:44px;font-weight:900;line-height:1;color:var(--pink);
+    -webkit-text-stroke:2px var(--ink);display:block;margin-bottom:8px}
+  .step h3{font-size:17px;text-transform:uppercase;margin-bottom:6px}
+  .step p{margin:0;font-size:14px}
+
+  /* SPLIT */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:800px){.split{grid-template-columns:1fr}}
+  .panel{padding:26px}
+  .panel h3{font-size:24px;text-transform:uppercase;margin-bottom:12px}
+  ul.checks{list-style:none;padding:0;margin:0}
+  ul.checks li{display:flex;gap:10px;padding:8px 0;border-bottom:2px dashed rgba(10,10,10,.25);font-weight:600}
+  ul.checks li:last-child{border-bottom:0}
+  ul.checks li .tick{width:22px;height:22px;flex:none;border:2px solid var(--ink);background:var(--lime);display:grid;place-items:center;font-weight:900;font-size:13px}
+
+  details.faq{border:var(--bw) solid var(--ink);background:var(--paper);box-shadow:var(--sh);margin-bottom:14px;padding:0}
+  details.faq summary{cursor:pointer;padding:16px 18px;font-weight:900;text-transform:uppercase;font-size:15px;list-style:none;display:flex;justify-content:space-between;gap:10px}
+  details.faq summary::-webkit-details-marker{display:none}
+  details.faq summary::after{content:"+";font-size:22px;line-height:1}
+  details.faq[open] summary::after{content:"–"}
+  details.faq p{margin:0;padding:0 18px 18px;opacity:.9}
+
+  /* DOWNLOAD BAND */
+  .dl-band{background:var(--ink);color:var(--cream);border:var(--bw) solid var(--ink);
+    box-shadow:12px 12px 0 var(--cyan);padding:36px;text-align:center;margin-top:10px}
+  .dl-band h2{color:var(--cream);font-size:clamp(28px,5vw,46px);text-transform:uppercase}
+  .dl-band p{max-width:60ch;margin:14px auto 24px;opacity:.9}
+  .dl-band .meta{color:var(--cyan)}
+
+  footer{padding:40px 0 60px}
+  .foot{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center;
+    border-top:var(--bw) solid var(--ink);padding-top:22px}
+  .foot .fine{font-size:12.5px;line-height:1.5;max-width:70ch;opacity:.85}
+  .foot a{font-weight:800}
+
+  @media (prefers-color-scheme: dark){
+    :root{--cream:#111014; --paper:#1b1a20; --ink:#F5F1E6; --yellow:#F5D90A}
+    body{background-image:radial-gradient(rgba(245,241,230,.35) 1px, transparent 1px)}
+    .tag{color:#0A0A0A}
+    .btn{color:#0A0A0A}
+    .neo{box-shadow:8px 8px 0 #000}
+    .btn{box-shadow:6px 6px 0 #000}
+    .hero-card{background:#000;color:var(--cream)}
+    .hero-card .row b{color:var(--yellow)}
+    .marquee{color:#0A0A0A}
+    .dl-band{background:#000;color:var(--cream)}
+    ul.checks li .tick{color:#0A0A0A}
+    .step .num{-webkit-text-stroke:2px var(--ink)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="wordmark" href="#top">
+      <span class="dot">a14</span>
+      <span>a14x27s</span>
+    </a>
+    <nav class="links">
+      <a class="txt" href="#features">Features</a>
+      <a class="txt" href="#install">Install</a>
+      <a class="txt" href="#faq">FAQ</a>
+      <a class="btn" href="https://github.com/akhilamalakota/a14x27s/releases/download/v4.2.4/a14x27s-debug.apk" download>Download APK</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="tag">v4.2.4 · Android 7.0+</span>
+        <h1>Music, <span class="hl">unlocked</span>.</h1>
+        <p class="lead">a14x27s is a fast, ad-free native Android client for the global YouTube&nbsp;Music catalog — with algorithm-driven smart playlists, millisecond-synced lyrics, offline downloads and a universal Last.fm scrobbler.</p>
+        <div class="cta-row">
+          <a class="btn btn--big" href="https://github.com/akhilamalakota/a14x27s/releases/download/v4.2.4/a14x27s-debug.apk" download>⬇ Download APK</a>
+          <a class="btn btn--ghost" href="#features">See features</a>
+        </div>
+        <div class="meta">a14x27s-debug.apk · arm64-v8a · ~109 MB</div>
+      </div>
+      <aside class="hero-card" aria-hidden="true">
+        <div class="bars">
+          <i style="height:40%"></i><i style="height:75%"></i><i style="height:55%"></i><i style="height:90%"></i>
+          <i style="height:35%"></i><i style="height:65%"></i><i style="height:100%"></i><i style="height:50%"></i>
+        </div>
+        <div class="row"><span>Now playing</span><b>Smart Mix</b></div>
+        <div class="row"><span>Lyrics</span><b>Synced</b></div>
+        <div class="row"><span>Scrobbling</span><b>Last.fm · ON</b></div>
+        <div class="row"><span>Downloads</span><b>Offline-ready</b></div>
+      </aside>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>★ Ad-free streaming</span><span>★ Smart playlists</span><span>★ Synced lyrics</span><span>★ Last.fm scrobbler</span><span>★ Offline downloads</span><span>★ Spotify import</span><span>★ Genre DNA</span><span>★ Android Auto</span>
+      <span>★ Ad-free streaming</span><span>★ Smart playlists</span><span>★ Synced lyrics</span><span>★ Last.fm scrobbler</span><span>★ Offline downloads</span><span>★ Spotify import</span><span>★ Genre DNA</span><span>★ Android Auto</span>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Everything in one app</h2>
+        <span class="kicker">8 core features</span>
+      </div>
+      <div class="grid">
+        <article class="card neo">
+          <div class="ico c1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor" stroke="none"/></svg></div>
+          <h3>YouTube Music</h3>
+          <p>Stream tracks, albums, artists and public playlists with zero ads and full background playback.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c2"><svg viewBox="0 0 24 24"><path d="M12 3v10"/><path d="M7 8l5-5 5 5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></div>
+          <h3>Smart Playlists</h3>
+          <p>Algorithmic taste mixes and mood radios built from your history, loved tracks and top genres.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c3"><svg viewBox="0 0 24 24"><path d="M4 14a8 8 0 0 1 16 0"/><circle cx="12" cy="14" r="2"/><path d="M12 16v4"/><path d="M8 20h8"/></svg></div>
+          <h3>Universal Scrobbler</h3>
+          <p>Built-in Last.fm tracking across YouTube Music, Spotify, Apple Music and local players.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c4"><svg viewBox="0 0 24 24"><path d="M12 3a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V7a4 4 0 0 0-4-4z"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v4"/></svg></div>
+          <h3>Synced Lyrics</h3>
+          <p>Millisecond-accurate animated karaoke lyrics via LRCLIB, with 8 fluid motion styles.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c2"><svg viewBox="0 0 24 24"><path d="M12 3v11"/><path d="M8 10l4 4 4-4"/><path d="M5 19h14"/></svg></div>
+          <h3>Offline Downloads</h3>
+          <p>One-tap saves to <b>Music/a14x27s</b>, fully tagged with hi-res cover art and <code>.lrc</code> lyrics.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></div>
+          <h3>Discovery &amp; Genre DNA</h3>
+          <p>A personalized recommendation radar with deep genre breakdowns and weekly listening recaps.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c3"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M4 12v5"/><path d="M20 12v5"/><path d="M8 17h8"/></svg></div>
+          <h3>Playlist Import</h3>
+          <p>Instantly import public playlists from Spotify and Apple Music into your a14x27s library.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c2"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M14 19a4 4 0 0 1 6.5-3"/></svg></div>
+          <h3>Social &amp; Friends</h3>
+          <p>Follow friends' listening activity through Last.fm and explore their recent scrobbles.</p>
+        </article>
+        <article class="card neo">
+          <div class="ico c1"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9.5 12l1.8 1.8 3.4-3.4"/></svg></div>
+          <h3>Material 3 Expressive</h3>
+          <p>Dynamic wallpaper theming, an HSL palette engine, album-art color extraction and tactile haptics.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Install in 4 steps</h2>
+        <span class="kicker">Sideload guide</span>
+      </div>
+      <div class="steps">
+        <div class="step neo"><span class="num">1</span><h3>Download</h3><p>Tap <b>Download APK</b> above to save <code>a14x27s-debug.apk</code> to your phone.</p></div>
+        <div class="step neo"><span class="num">2</span><h3>Allow installs</h3><p>When prompted, enable <b>Install unknown apps</b> for your browser or file manager in Android settings.</p></div>
+        <div class="step neo"><span class="num">3</span><h3>Install</h3><p>Open the downloaded file and confirm the install. On Android you may see a Play Protect notice — choose <b>Install anyway</b>.</p></div>
+        <div class="step neo"><span class="num">4</span><h3>Connect Last.fm</h3><p>Open <b>Settings → Integrations</b> to sign in to Last.fm and unlock scrobbling, taste mixes and your discovery radar.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div class="panel neo">
+        <h3>What's inside</h3>
+        <ul class="checks">
+          <li><span class="tick">✓</span> YouTube Music catalog streaming (Opus, high-efficiency)</li>
+          <li><span class="tick">✓</span> AndroidX Media3 ExoPlayer engine + lockscreen controls</li>
+          <li><span class="tick">✓</span> Android Auto integration</li>
+          <li><span class="tick">✓</span> Room DB, Jetpack DataStore &amp; Dagger Hilt</li>
+          <li><span class="tick">✓</span> MVVM + Clean Architecture, 100% Kotlin + Compose</li>
+          <li><span class="tick">✓</span> Live synced lyrics powered by LRCLIB</li>
+        </ul>
+      </div>
+      <div class="panel neo" style="background:var(--lime)">
+        <h3>Requirements</h3>
+        <ul class="checks">
+          <li><span class="tick">✓</span> Android 7.0 (API 24) or newer</li>
+          <li><span class="tick">✓</span> arm64-v8a device (all modern phones)</li>
+          <li><span class="tick">✓</span> ~120 MB free storage, internet connection</li>
+          <li><span class="tick">✓</span> Optional: Last.fm account for scrobbling</li>
+        </ul>
+        <p style="margin:14px 0 0;font-weight:700">This build is a debug APK for testing. Sideloading is required — it is not on the Play Store.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="dl-band neo">
+      <h2>Ready to listen?</h2>
+      <p>Grab the latest build of a14x27s and get to your music — no ads, no interruptions.</p>
+      <a class="btn btn--big btn--pink" href="https://github.com/akhilamalakota/a14x27s/releases/download/v4.2.4/a14x27s-debug.apk" download>⬇ Download a14x27s APK</a>
+      <div class="meta">a14x27s-debug.apk · v4.2.4 · arm64-v8a · Android 7.0+</div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>FAQ</h2>
+        <span class="kicker">Good to know</span>
+      </div>
+      <details class="faq" open><summary>Is a14x27s free?</summary><p>Yes. It is an open-source, non-commercial project built for research and educational purposes.</p></details>
+      <details class="faq"><summary>Why can't I install the APK?</summary><p>Android blocks apps from outside the Play Store by default. Enable <b>Install unknown apps</b> for your browser or file manager, then open the file again. If Play Protect warns you, tap <b>Install anyway</b>.</p></details>
+      <details class="faq"><summary>Which devices are supported?</summary><p>Any Android 7.0+ phone. This APK ships the <b>arm64-v8a</b> native library, which covers virtually every phone made since ~2016.</p></details>
+      <details class="faq"><summary>Do I need a Last.fm account?</summary><p>No — the app works without one. Signing in unlocks scrobbling, algorithmic taste mixes and the personalized discovery radar.</p></details>
+      <details class="faq"><summary>Is it affiliated with YouTube or Last.fm?</summary><p>No. a14x27s is an independent project and is not affiliated with or endorsed by Google, YouTube, Spotify, Apple or Last.fm. All trademarks belong to their respective owners.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div class="fine">
+      <b>a14x27s</b> — an independent, non-commercial, educational open-source project. Not affiliated with Google, YouTube, YouTube Music, Spotify, Apple or Last.fm. It does not host or distribute copyrighted media.<br />
+      Prefer a direct link? <a href="https://github.com/akhilamalakota/a14x27s/releases" target="_blank" rel="noopener">View all releases →</a>
+    </div>
+    <div style="font-weight:800">© <span id="yr">2026</span> a14x27s</div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
